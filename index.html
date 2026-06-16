@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>รับทำเว็บไซต์ - ติดต่อ wirasakbutrpha983@gmail.com</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eff4fb;
+        --surface: #ffffff;
+        --surface-strong: #172b4d;
+        --text: #1b2a44;
+        --text-muted: #5b6c85;
+        --accent: #ffb733;
+        --accent-dark: #e6952b;
+        --border: rgba(27, 42, 68, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.7;
+        color: var(--text);
+        background: radial-gradient(circle at top, #eff4fb 0%, #dee7f2 45%, #f4f4f8 100%);
+      }
+
+      header {
+        background: linear-gradient(135deg, #174477 0%, #2a5ea0 100%);
+        color: white;
+        padding: 1rem 1rem 2rem;
+      }
+
+      .container {
+        width: min(1100px, 94%);
+        margin: 0 auto;
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding-bottom: 1rem;
+      }
+
+      nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s ease;
+      }
+
+      nav a:hover {
+        color: #ffe8a0;
+      }
+
+      .hero {
+        padding: 3.5rem 0 4rem;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 30px;
+        box-shadow: inset 0 12px 60px rgba(0, 0, 0, 0.08);
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(2.5rem, 4vw, 4rem);
+        letter-spacing: -0.04em;
+      }
+
+      .hero p {
+        margin: 1rem auto 0;
+        max-width: 700px;
+        color: #eef2ff;
+        font-size: 1.1rem;
+      }
+
+      .button-primary {
+        display: inline-block;
+        margin-top: 1.5rem;
+        padding: 0.95rem 2rem;
+        background: var(--accent);
+        color: #1a1a1a;
+        text-decoration: none;
+        border-radius: 999px;
+        font-weight: 700;
+        box-shadow: 0 14px 28px rgba(255, 183, 51, 0.2);
+        transition: transform 0.2s ease, background 0.2s ease;
+      }
+
+      .button-primary:hover {
+        transform: translateY(-2px);
+        background: var(--accent-dark);
+        color: white;
+      }
+
+      section {
+        padding: 3rem 0;
+      }
+
+      h2 {
+        margin-bottom: 1rem;
+        font-size: clamp(2rem, 3vw, 2.5rem);
+        letter-spacing: -0.03em;
+      }
+
+      section p {
+        max-width: 760px;
+        color: var(--text-muted);
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .card {
+        background: var(--surface);
+        border-radius: 20px;
+        box-shadow: 0 18px 40px rgba(11, 35, 73, 0.08);
+        padding: 2rem;
+        border: 1px solid rgba(27, 42, 68, 0.08);
+      }
+
+      .card h3 {
+        margin-top: 0;
+      }
+
+      .card p {
+        color: var(--text-muted);
+      }
+
+      .card::before {
+        content: "✓";
+        display: inline-block;
+        margin-right: 0.75rem;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .contact-card {
+        background: linear-gradient(135deg, #ffffff, #f7f9fd);
+        border-radius: 24px;
+        padding: 2rem;
+        border: 1px solid rgba(27, 42, 68, 0.08);
+        box-shadow: 0 14px 30px rgba(27, 42, 68, 0.06);
+      }
+
+      .contact-card a {
+        color: var(--surface-strong);
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      footer {
+        background: #172534;
+        color: #d6dde7;
+        padding: 1.5rem 0;
+        text-align: center;
+      }
+
+      footer p {
+        margin: 0;
+        font-size: 0.95rem;
+      }
+
+      .brand {
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 600px) {
+        nav {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .hero {
+          padding: 2.5rem 1rem 3rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <nav>
+          <div class="brand">TAMWEP by วีระศักดิ์ & ศักดิ์ดินนท์</div>
+          <div>
+            <a href="#about">เกี่ยวกับ</a>
+            <a href="#features">ฟีเจอร์</a>
+            <a href="#contact">ติดต่อ</a>
+          </div>
+        </nav>
+        <div class="hero">
+          <h1>รับทำเว็บไซต์สำหรับธุรกิจและบุคคลทั่วไป</h1>
+          <p>พร้อมออกแบบหน้าเว็บสวยงาม ตอบโจทย์ SEO และใช้งานได้ทั้งบนมือถือและเดสก์ท็อป ติดต่อเพื่อเสนอราคาได้ทันที</p>
+          <a class="button-primary" href="mailto:wirasakbutrpha983@gmail.com">ส่งอีเมลติดต่อ</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section id="about">
+        <h2>บริการรับทำเว็บไซต์</h2>
+        <p>ผมให้บริการรับทำเว็บไซต์ครบวงจร เริ่มตั้งแต่วางโครงสร้าง ออกแบบดีไซน์ ปรับแต่งให้รองรับมือถือ และช่วยให้เว็บไซต์ของคุณดูดีพร้อมใช้งาน</p>
+      </section>
+
+      <section id="features">
+        <h2>ฟีเจอร์เด่น</h2>
+        <div class="cards">
+          <article class="card">
+            <h3>โครงสร้างเรียบง่าย</h3>
+            <p>HTML และ CSS แบบตรงไปตรงมา ทำให้แก้ไขได้ง่าย และติดตั้งได้เร็ว</p>
+          </article>
+          <article class="card">
+            <h3>รองรับมือถือ</h3>
+            <p>การจัดวางแบบ responsive ช่วยให้ดูสวยงามทั้งบนหน้าจอใหญ่และเล็ก</p>
+          </article>
+          <article class="card">
+            <h3>สีสันสดใส</h3>
+            <p>ใช้โทนสีทันสมัย พร้อมคอนทราสต์ที่อ่านง่าย</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="contact">
+        <h2>ติดต่อ</h2>
+        <div class="contact-card">
+          <p>สนใจรับทำเว็บไซต์ ส่งรายละเอียดงาน หรือสอบถามราคาได้ที่อีเมลด้านล่างนี้</p>
+          <p><a href="mailto:wirasakbutrpha983@gmail.com">wirasakbutrpha983@gmail.com</a></p>
+          <p>ตอบกลับรวดเร็ว พร้อมให้คำปรึกษาแบบมืออาชีพ</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>© 2026 TAMWEP | โดย วีระศักดิ์ และ ศักดิ์ดินนท์ | เว็บไซต์ตัวอย่างสร้างด้วย HTML และ CSS</p>
+      </div>
+    </footer>
+  </body>
+</html>
