@@ -35,3 +35,9 @@ node apps/frontend/scripts/dev/node_signin2.js 3000
 ```
 
 If SMTP is not configured in dev, sending email will use Nodemailer test account and the API will return a preview URL.
+
+Rate limiting and data storage
+
+- The contact API applies a simple in-memory rate-limit of 10 submissions per hour per IP. This is intended as a lightweight protection for small deployments. For production you should replace it with a shared store (Redis) or a specialized rate-limiter.
+- All submissions are persisted to `apps/frontend/data/submissions.json` as an append-style JSON array. Make sure this directory is writable by the runtime and consider moving submissions to a database for production.
+- Confirmation emails are sent to the submitter when an `email` is provided, and the primary recipient is `CONTACT_EMAIL` (fallback `20778@mh.ac.th`).
