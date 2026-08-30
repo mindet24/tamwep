@@ -13,7 +13,7 @@ export default function Navbar() {
     <header style={{ position: 'sticky', top: 0, zIndex: 40, background: scrolled ? 'rgba(255,255,255,0.95)' : 'transparent', boxShadow: scrolled ? '0 2px 8px rgba(0,0,0,0.06)' : 'none', transition: 'all .2s ease' }}>
       <nav style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.6rem 1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Link href="#hero"><a style={{ fontWeight: 800, color: '#111', textDecoration: 'none', fontSize: '1.05rem' }}>TAMWEP</a></Link>
+          <Link href="#hero" style={{ fontWeight: 800, color: '#111', textDecoration: 'none', fontSize: '1.05rem' }}>TAMWEP</Link>
           <span style={{ color: '#666', fontSize: '0.9rem' }}>รับทำเว็บไซต์</span>
         </div>
 
