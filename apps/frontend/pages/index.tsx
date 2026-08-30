@@ -181,9 +181,12 @@ export default function Home() {
             <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>ผลงานตัวอย่าง</h2>
             <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
               {[1,2,3].map((n) => (
-                <div key={n} style={{ background: '#fff', padding: '1rem', borderRadius: '0.75rem', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
-                  <h3 style={{ marginTop: 0 }}>Project {n}</h3>
-                  <p style={{ margin: 0 }}>เว็บไซต์สาธิตสำหรับลูกค้า บริการออกแบบและติดตั้ง</p>
+                <div key={n} className="card" style={{ overflow: 'hidden' }}>
+                  <img className="works-img" src={`https://picsum.photos/seed/tamwep-${n}/800/500`} alt={`Project ${n}`} />
+                  <div style={{ padding: '0.9rem' }}>
+                    <h3 style={{ marginTop: 0 }}>Project {n}</h3>
+                    <p className="muted" style={{ margin: 0 }}>เว็บไซต์สาธิตสำหรับลูกค้า บริการออกแบบและติดตั้ง</p>
+                  </div>
                 </div>
               ))}
             </div>
