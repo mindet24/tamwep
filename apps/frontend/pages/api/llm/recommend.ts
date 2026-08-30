@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth/[...nextauth]';
 
 type Data =
   | { ok: true; checklist: string[]; snippet: string }
@@ -8,6 +10,54 @@ type Data =
 const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const RATE_MAX = 30;
 const rateMap: Map<string, { count: number; start: number }> = new Map();
+
+// Per-user LLM quota (per hour). Prefer Redis when REDIS_URL is set, otherwise in-memory.
+const LLM_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const LLM_MAX_PER_HOUR = Number(process.env.LLM_QUOTA_PER_HOUR || 20);
+let redisClient: any = null;
+let redisAvailable = false;
+async function initRedis() {
+  if (redisClient || !process.env.REDIS_URL) return;
+  try {
+    const { createClient } = require('redis');
+    redisClient = createClient({ url: process.env.REDIS_URL });
+    await redisClient.connect();
+    redisAvailable = true;
+  } catch (e) {
+    console.warn('Redis not available, falling back to in-memory quota', e?.message || e);
+    redisAvailable = false;
+    redisClient = null;
+  }
+}
+
+const userQuotaMap: Map<string, { count: number; start: number }> = new Map();
+
+async function checkAndIncrementQuota(userId: string) {
+  await initRedis();
+  const window = LLM_WINDOW_MS;
+  const now = Date.now();
+  if (redisAvailable && redisClient) {
+    const key = `llm:quota:${userId}`;
+    try {
+      const res = await redisClient.multi().incr(key).pexpire(key, window).exec();
+      // res is array of [ [null, value], [null, ok] ] or similar
+      const count = Number(res?.[0]?.[1] ?? NaN);
+      if (Number.isNaN(count)) return false;
+      return count <= LLM_MAX_PER_HOUR;
+    } catch (e) {
+      console.warn('Redis quota check failed, falling back to memory', e?.message || e);
+    }
+  }
+
+  const state = userQuotaMap.get(userId) || { count: 0, start: now };
+  if (now - state.start > window) {
+    state.count = 0;
+    state.start = now;
+  }
+  state.count += 1;
+  userQuotaMap.set(userId, state);
+  return state.count <= LLM_MAX_PER_HOUR;
+}
 
 function getIp(req: any) {
   const forwarded = req.headers['x-forwarded-for'];
@@ -19,6 +69,12 @@ const DEFAULT_SYSTEM = `You are an expert web developer and UX designer. Given a
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
   if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method not allowed' });
+
+  // require auth
+  const session = await getServerSession(req, res, authOptions as any);
+  if (!session || !session.user || !session.user.id) {
+    return res.status(401).json({ ok: false, error: 'Authentication required' });
+  }
 
   const { goal, tech, style } = req.body || {};
   if (!goal || typeof goal !== 'string' || goal.trim().length < 3) {
@@ -36,6 +92,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   state.count += 1;
   rateMap.set(ip, state);
   if (state.count > RATE_MAX) return res.status(429).json({ ok: false, error: 'Rate limit exceeded' });
+
+  // check per-user quota
+  const userId = String(session.user.id);
+  const okQuota = await checkAndIncrementQuota(userId);
+  if (!okQuota) return res.status(429).json({ ok: false, error: 'User quota exceeded' });
 
   // Build prompt
   const userPrompt = `Goal: ${goal}\nTech: ${tech || 'any'}\nStyle: ${style || 'simple, clean'}\n\nReturn a JSON object as described.`;
