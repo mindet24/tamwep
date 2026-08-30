@@ -1,5 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { sendEmail } from '../../lib/email';
+import fs from 'fs';
+import path from 'path';
+import { promisify } from 'util';
+const appendFile = promisify(fs.appendFile);
+
+const LOG_DIR = path.join(process.cwd(), 'apps', 'frontend', 'logs');
+const LOG_FILE = path.join(LOG_DIR, 'contact.log');
 
 type Data =
   | { ok: true; preview?: string }
@@ -27,6 +34,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   `;
 
   try {
+    // ensure log dir exists
+    try {
+      fs.mkdirSync(LOG_DIR, { recursive: true });
+    } catch (err) {
+      // non-fatal
+    }
+
+    // write a log entry (timestamp, from, subject)
+    const entry = `${new Date().toISOString()}\tfrom=${from}\tsubject=${subject}\tmessage=${(message || '').replace(/\n/g, ' ')}\n`;
+    try {
+      await appendFile(LOG_FILE, entry, { encoding: 'utf8' });
+    } catch (e) {
+      console.error('Failed to write contact log:', e);
+    }
     const result: any = await sendEmail({ to, subject, html });
     // result may include preview when using test account
     return res.status(200).json({ ok: true, preview: result.preview });

@@ -18,6 +18,12 @@ export default function Home() {
   const [question, setQuestion] = useState('TAMWEP ให้บริการอะไรบ้าง');
   const [answer, setAnswer] = useState('พิมพ์คำถามแล้วกด “ถามเลย” เพื่อดูการตอบกลับจาก LLM แบบง่าย');
   const [loading, setLoading] = useState(false);
+  // Contact form state
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactMessage, setContactMessage] = useState('');
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactStatus, setContactStatus] = useState<string | null>(null);
 
   useEffect(() => {
     const seedDemoDocs = async () => {
@@ -246,6 +252,11 @@ export default function Home() {
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
+                  // client-side validation
+                  if (!contactEmail || !contactEmail.trim() || !contactMessage || !contactMessage.trim()) {
+                    setContactStatus('กรุณากรอก Email และข้อความ');
+                    return;
+                  }
                   setContactLoading(true);
                   setContactStatus(null);
                   try {
@@ -275,7 +286,7 @@ export default function Home() {
               >
                 <div style={{ display: 'grid', gap: '0.5rem' }}>
                   <label style={{ fontWeight: 700 }}>Email ที่ติดต่อได้</label>
-                  <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="your@email.com" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #ddd' }} />
+                  <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="your@email.com" type="email" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #ddd' }} />
 
                   <label style={{ fontWeight: 700 }}>ชื่อ (ไม่บังคับ)</label>
                   <input value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="ชื่อของคุณ" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #ddd' }} />
@@ -283,7 +294,7 @@ export default function Home() {
                   <label style={{ fontWeight: 700 }}>ข้อความ</label>
                   <textarea value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} rows={6} placeholder="รายละเอียดที่ต้องการ" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #ddd' }} />
 
-                  <button type="submit" disabled={contactLoading} style={{ padding: '0.75rem 1rem', borderRadius: 8, background: '#111', color: '#fff', border: 'none', fontWeight: 700 }}>
+                  <button type="submit" disabled={contactLoading || !contactEmail.trim() || !contactMessage.trim()} style={{ padding: '0.75rem 1rem', borderRadius: 8, background: '#111', color: '#fff', border: 'none', fontWeight: 700 }}>
                     {contactLoading ? 'กำลังส่ง...' : 'ส่งข้อความ'}
                   </button>
                 </div>
