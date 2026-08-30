@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 // Public access: no server-side auth required (rate-limited per IP)
+import { promises as fs } from 'fs';
+import path from 'path';
 
 type Data =
   | { ok: true; checklist: string[]; snippet: string; text?: string }
@@ -46,7 +48,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   // Build prompt
   const srcText = sources ? `Sources: ${String(sources)}\n\n` : '';
-  const userPrompt = `${srcText}Goal: ${goal}\nTech: ${tech || 'any'}\nStyle: ${style || 'simple, clean'}\n\nReturn a JSON object with checklist and snippet if possible — otherwise answer naturally.`;
+  // include any stored rag docs if present
+  const dataFile = path.join(process.cwd(), 'apps', 'frontend', 'data', 'rag_docs.json');
+  let docsText = '';
+  try {
+    const raw = await fs.readFile(dataFile, 'utf8');
+    const docs = JSON.parse(raw || '[]');
+    if (Array.isArray(docs) && docs.length > 0) {
+      docsText = docs.slice(-5).map((d: any, i: number) => `Doc ${i + 1} Title: ${d.title}\n${d.content}`).join('\n\n') + '\n\n';
+    }
+  } catch (e) {
+    docsText = '';
+  }
+
+  const userPrompt = `${srcText}${docsText}Goal: ${goal}\nTech: ${tech || 'any'}\nStyle: ${style || 'simple, clean'}\n\nReturn a JSON object with checklist and snippet if possible — otherwise answer naturally.`;
 
   // If Ollama is configured, prefer it
   const OLLAMA_URL = process.env.OLLAMA_URL || process.env.OLLAMA_HOST || 'http://localhost:11434';
