@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
+import Navbar from '../components/Navbar';
 
 const SAMPLE_DOCS = [
   {
@@ -84,6 +85,7 @@ export default function Home() {
           content="TAMWEP รับทำเว็บไซต์ธุรกิจด้วยดีไซน์สวยและระบบใช้งานง่าย พร้อมบริการดูแลหลังบ้านแบบครบวงจร"
         />
       </Head>
+      <Navbar />
       <main style={{ fontFamily: 'Segoe UI, Tahoma, sans-serif', color: '#111', lineHeight: 1.7 }}>
         <section id="hero" style={{ padding: '4rem 2rem', background: '#f7f7f7' }}>
           <div style={{ maxWidth: 960, margin: '0 auto' }}>
@@ -333,6 +335,16 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <footer style={{ padding: '2rem 1rem', background: '#111', color: '#fff', marginTop: '3rem' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <strong>TAMWEP</strong>
+              <div style={{ fontSize: '0.9rem', color: '#ddd' }}>© {new Date().getFullYear()} TAMWEP</div>
+            </div>
+            <div style={{ fontSize: '0.9rem', color: '#ddd' }}>Built with ❤️ — Prototype</div>
+          </div>
+        </footer>
       </main>
     </>
   );
