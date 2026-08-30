@@ -40,6 +40,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   // Build prompt
   const userPrompt = `Goal: ${goal}\nTech: ${tech || 'any'}\nStyle: ${style || 'simple, clean'}\n\nReturn a JSON object as described.`;
 
+  // If Ollama is configured, prefer it
+  const OLLAMA_URL = process.env.OLLAMA_URL || process.env.OLLAMA_HOST || 'http://localhost:11434';
+  const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama2';
+
+  if (process.env.USE_OLLAMA === '1' || process.env.OLLAMA_URL || process.env.OLLAMA_MODEL) {
+    try {
+      const resp = await fetch(`${OLLAMA_URL}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: OLLAMA_MODEL, prompt: userPrompt, max_tokens: 800, temperature: 0.2 }),
+      });
+
+      if (!resp.ok) {
+        const text = await resp.text();
+        // fall through to other handlers
+        console.error('Ollama responded with error:', text);
+      } else {
+        const json = await resp.json().catch(() => null);
+        const content = json?.result || json?.text || json?.output || (await resp.text());
+        // try parse JSON inside content
+        let parsed = null;
+        try { parsed = JSON.parse(content); } catch (e) { parsed = null; }
+        if (parsed) {
+          const checklist = Array.isArray(parsed.checklist) ? parsed.checklist.map(String) : [];
+          const snippet = String(parsed.snippet || parsed.code || '');
+          return res.status(200).json({ ok: true, checklist, snippet });
+        }
+        return res.status(200).json({ ok: true, checklist: [], snippet: String(content) });
+      }
+    } catch (e) {
+      console.error('Ollama call failed', e);
+      // fall back to OpenAI/dev response below
+    }
+  }
+
   // If no OpenAI key is configured, return a safe canned response for development
   if (!process.env.OPENAI_API_KEY) {
     const checklist = [
