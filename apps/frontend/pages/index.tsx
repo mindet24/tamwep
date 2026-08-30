@@ -18,6 +18,12 @@ export default function Home() {
   const [question, setQuestion] = useState('TAMWEP ให้บริการอะไรบ้าง');
   const [answer, setAnswer] = useState('พิมพ์คำถามแล้วกด “ถามเลย” เพื่อดูการตอบกลับจาก LLM แบบง่าย');
   const [loading, setLoading] = useState(false);
+  // LLM Advisor (new)
+  const [goal, setGoal] = useState('เว็บไซต์ one-page สำหรับร้านกาแฟ พร้อมเมนูและติดต่อ');
+  const [tech, setTech] = useState('HTML/CSS/JS');
+  const [advisorLoading, setAdvisorLoading] = useState(false);
+  const [checklist, setChecklist] = useState<string[]>([]);
+  const [snippet, setSnippet] = useState('');
   // Contact form state
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
@@ -196,49 +202,70 @@ export default function Home() {
                 gap: '1rem',
               }}
             >
-              <label style={{ fontWeight: 700 }}>คำถามของคุณ</label>
-              <textarea
-                value={question}
-                onChange={(event) => setQuestion(event.target.value)}
-                rows={4}
-                placeholder="เช่น TAMWEP ให้บริการอะไรบ้าง"
-                style={{
-                  width: '100%',
-                  padding: '0.9rem 1rem',
-                  borderRadius: '0.75rem',
-                  border: '1px solid #d6d6d6',
-                  fontSize: '1rem',
-                  resize: 'vertical',
-                  boxSizing: 'border-box',
-                }}
-              />
-              <button
-                onClick={handleAsk}
-                disabled={loading}
-                style={{
-                  alignSelf: 'start',
-                  padding: '0.9rem 1.4rem',
-                  border: 'none',
-                  borderRadius: 9999,
-                  background: '#111',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                }}
-              >
-                {loading ? 'กำลังคิด...' : 'ถามเลย'}
-              </button>
-              <div
-                style={{
-                  background: '#fafafa',
-                  borderRadius: '0.75rem',
-                  padding: '1rem',
-                  color: '#333',
-                  whiteSpace: 'pre-wrap',
-                }}
-              >
-                {answer}
+              <label style={{ fontWeight: 700 }}>LLM Advisor — บอกสิ่งที่ต้องการแล้วกด "แนะนำ"</label>
+              <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="เช่น เว็บไซต์ one-page สำหรับร้านกาแฟ" style={{ padding: '0.8rem', borderRadius: 8, border: '1px solid #d6d6d6' }} />
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input value={tech} onChange={(e) => setTech(e.target.value)} placeholder="Tech stack (optional)" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #d6d6d6', flex: 1 }} />
+                <button
+                  onClick={async () => {
+                    if (!goal.trim()) return;
+                    setAdvisorLoading(true);
+                    setChecklist([]);
+                    setSnippet('');
+                    try {
+                      const res = await fetch('/api/llm/recommend', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ goal, tech }),
+                      });
+                      const data = await res.json();
+                      if (data.ok) {
+                        setChecklist(data.checklist || []);
+                        setSnippet(data.snippet || '');
+                      } else {
+                        setSnippet('ข้อผิดพลาด: ' + (data.error || 'unknown'));
+                      }
+                    } catch (e) {
+                      setSnippet('ไม่สามารถเรียก LLM ได้');
+                    } finally {
+                      setAdvisorLoading(false);
+                    }
+                  }}
+                  disabled={advisorLoading}
+                  style={{ padding: '0.6rem 1rem', borderRadius: 8, background: '#111', color: '#fff', border: 'none' }}
+                >
+                  {advisorLoading ? 'กำลังเรียก LLM...' : 'แนะนำ'}
+                </button>
               </div>
+
+              {checklist.length > 0 && (
+                <div style={{ background: '#fafafa', borderRadius: '0.75rem', padding: '1rem' }}>
+                  <h4>Checklist</h4>
+                  <ol>
+                    {checklist.map((c, i) => (
+                      <li key={i}>{c}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {snippet && (
+                <div style={{ background: '#111', color: '#fff', borderRadius: '0.75rem', padding: '1rem', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <strong>Snippet</strong>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard?.writeText(snippet);
+                        alert('คัดลอกแล้ว');
+                      }}
+                      style={{ background: '#fff', color: '#111', borderRadius: 6, padding: '0.25rem 0.5rem', border: 'none' }}
+                    >
+                      คัดลอก
+                    </button>
+                  </div>
+                  <div style={{ marginTop: '0.5rem' }}>{snippet}</div>
+                </div>
+              )}
             </div>
           </div>
         </section>
