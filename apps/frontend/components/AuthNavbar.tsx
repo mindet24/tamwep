@@ -25,18 +25,18 @@ export default function AuthNavbar() {
         TAMWEP
       </Link>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-        <Link href="/" style={{ color: 'white', textDecoration: 'none' }}>
+        <a href="#hero" style={{ color: 'white', textDecoration: 'none' }}>
           หน้าแรก
-        </Link>
-        <Link href="/services" style={{ color: 'white', textDecoration: 'none' }}>
+        </a>
+        <a href="#services" style={{ color: 'white', textDecoration: 'none' }}>
           บริการ
-        </Link>
-        <Link href="/portfolio" style={{ color: 'white', textDecoration: 'none' }}>
+        </a>
+        <a href="#works" style={{ color: 'white', textDecoration: 'none' }}>
           ผลงาน
-        </Link>
-        <Link href="/contact" style={{ color: 'white', textDecoration: 'none' }}>
+        </a>
+        <a href="#contact" style={{ color: 'white', textDecoration: 'none' }}>
           ติดต่อ
-        </Link>
+        </a>
         {session?.user ? (
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <span style={{ color: '#f8fafc' }}>สวัสดี, {session.user.name}</span>

@@ -1,6 +1,68 @@
 import Head from 'next/head';
+import { useEffect, useState } from 'react';
+
+const SAMPLE_DOCS = [
+  {
+    title: 'TAMWEP 소개',
+    content:
+      'TAMWEP เป็นบริษัทรับทำเว็บไซต์ ธุรกิจ SME, ร้านค้าออนไลน์, บริการ และองค์กรที่ต้องการเว็บไซต์สวยและใช้งานง่าย พร้อมระบบหลังบ้านที่จัดการเนื้อหาได้ง่าย',
+  },
+  {
+    title: 'บริการ',
+    content:
+      'บริการของ TAMWEP ประกอบด้วย การออกแบบเว็บไซต์สวยทันสมัย, ระบบหลังบ้านใช้งานง่าย, และปรับแต่งตามความต้องการธุรกิจ',
+  },
+];
 
 export default function Home() {
+  const [question, setQuestion] = useState('TAMWEP ให้บริการอะไรบ้าง');
+  const [answer, setAnswer] = useState('พิมพ์คำถามแล้วกด “ถามเลย” เพื่อดูการตอบกลับจาก LLM แบบง่าย');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const seedDemoDocs = async () => {
+      try {
+        await Promise.all(
+          SAMPLE_DOCS.map((doc) =>
+            fetch('http://localhost:3001/api/rag/ingest', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(doc),
+            }),
+          ),
+        );
+      } catch (error) {
+        console.error('Could not seed demo docs:', error);
+      }
+    };
+
+    seedDemoDocs();
+  }, []);
+
+  const handleAsk = async () => {
+    if (!question.trim()) {
+      setAnswer('กรุณาพิมพ์คำถามก่อน');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/rag/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: question }),
+      });
+
+      const data = await response.json();
+      setAnswer(data.answer || 'ตอบกลับไม่พบ');
+    } catch (error) {
+      setAnswer('ไม่สามารถเชื่อมต่อ backend ได้ กรุณาเปิด backend ที่ port 3001 ก่อนใช้งาน');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -25,7 +87,7 @@ export default function Home() {
             </p>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <a
-                href="/services"
+                href="#services"
                 style={{
                   padding: '0.95rem 1.8rem',
                   borderRadius: 9999,
@@ -38,7 +100,7 @@ export default function Home() {
                 เริ่มต้นเลย
               </a>
               <a
-                href="/portfolio"
+                href="#works"
                 style={{
                   padding: '0.95rem 1.8rem',
                   borderRadius: 9999,
@@ -97,6 +159,66 @@ export default function Home() {
               <li>เน้นเว็บโหลดเร็วและรองรับ SEO เบื้องต้น</li>
               <li>บริการหลังการขาย พร้อมอัปเดตและแก้ไขตามต้องการ</li>
             </ul>
+          </div>
+        </section>
+
+        <section style={{ padding: '3rem 2rem', background: '#f7f7f7' }}>
+          <div style={{ maxWidth: 960, margin: '0 auto' }}>
+            <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>LLM แบบง่าย</h2>
+            <div
+              style={{
+                background: '#fff',
+                borderRadius: '1rem',
+                padding: '1.5rem',
+                boxShadow: '0 16px 40px rgba(0,0,0,0.06)',
+                display: 'grid',
+                gap: '1rem',
+              }}
+            >
+              <label style={{ fontWeight: 700 }}>คำถามของคุณ</label>
+              <textarea
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+                rows={4}
+                placeholder="เช่น TAMWEP ให้บริการอะไรบ้าง"
+                style={{
+                  width: '100%',
+                  padding: '0.9rem 1rem',
+                  borderRadius: '0.75rem',
+                  border: '1px solid #d6d6d6',
+                  fontSize: '1rem',
+                  resize: 'vertical',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                onClick={handleAsk}
+                disabled={loading}
+                style={{
+                  alignSelf: 'start',
+                  padding: '0.9rem 1.4rem',
+                  border: 'none',
+                  borderRadius: 9999,
+                  background: '#111',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                }}
+              >
+                {loading ? 'กำลังคิด...' : 'ถามเลย'}
+              </button>
+              <div
+                style={{
+                  background: '#fafafa',
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  color: '#333',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
+                {answer}
+              </div>
+            </div>
           </div>
         </section>
 
