@@ -25,12 +25,9 @@ export default function Home() {
   const [advisorLoading, setAdvisorLoading] = useState(false);
   const [checklist, setChecklist] = useState<string[]>([]);
   const [snippet, setSnippet] = useState('');
-  // Contact form state
-  const [contactName, setContactName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactMessage, setContactMessage] = useState('');
-  const [contactLoading, setContactLoading] = useState(false);
-  const [contactStatus, setContactStatus] = useState<string | null>(null);
+  const [responseText, setResponseText] = useState('');
+  const [sources, setSources] = useState('');
+  // contact temporarily removed — form disabled in UI
 
   useEffect(() => {
     const seedDemoDocs = async () => {
@@ -101,7 +98,7 @@ export default function Home() {
             </p>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <a
-                href="#services"
+                href="#llm"
                 style={{
                   padding: '0.95rem 1.8rem',
                   borderRadius: 9999,
@@ -111,10 +108,10 @@ export default function Home() {
                   fontWeight: 600,
                 }}
               >
-                เริ่มต้นเลย
+                ขอคำแนะนำจาก LLM
               </a>
               <a
-                href="#works"
+                href="#services"
                 style={{
                   padding: '0.95rem 1.8rem',
                   borderRadius: 9999,
@@ -124,7 +121,7 @@ export default function Home() {
                   fontWeight: 600,
                 }}
               >
-                ดูบริการของเรา
+                ดูรายละเอียดบริการ
               </a>
             </div>
           </div>
@@ -132,20 +129,20 @@ export default function Home() {
 
         <section id="services" style={{ padding: '3rem 2rem' }}>
           <div style={{ maxWidth: 960, margin: '0 auto' }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>บริการของเรา</h2>
+            <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>บริการของเรา (LLM Advisor)</h2>
             <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
               {[
                 {
-                  title: 'เว็บไซต์สวยทันสมัย',
-                  description: 'ออกแบบหน้าเว็บไซต์สวย ดูดี บนทั้งมือถือและคอมพิวเตอร์',
+                  title: 'คำแนะนำการออกแบบเว็บไซต์',
+                  description: 'ออกแบบ UX/UI, โครงสร้างหน้า, และแนวทางการวางเนื้อหาให้เหมาะกับเป้าหมายธุรกิจ',
                 },
                 {
-                  title: 'ระบบหลังบ้านใช้งานง่าย',
-                  description: 'จัดการเนื้อหาและคำสั่งซื้อได้สะดวก โดยไม่ต้องมีความรู้ด้านเทคนิค',
+                  title: 'สถาปัตยกรรม & เทคโนโลยี',
+                  description: 'ข้อเสนอเทคโนโลยี (static, SSR, headless CMS, hosting) และการตั้งค่าเบื้องต้น',
                 },
                 {
-                  title: 'ปรับแต่งตามความต้องการ',
-                  description: 'รองรับฟีเจอร์เฉพาะธุรกิจ เช่น ระบบจองสินค้า หรือระบบติดต่อออนไลน์',
+                  title: 'แผนการพัฒนา & Snippet',
+                  description: 'แผนแบ่งงานเป็นขั้นตอน พร้อมตัวอย่างโค้ดสั้นๆ เพื่อเริ่มต้นทันที',
                 },
               ].map((item) => (
                 <div
@@ -167,32 +164,15 @@ export default function Home() {
 
         <section id="why" style={{ padding: '3rem 2rem', background: '#f7f7f7' }}>
           <div style={{ maxWidth: 960, margin: '0 auto' }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>ทำไมต้องเลือก TAMWEP</h2>
+            <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>ทำไมต้องใช้ LLM Advisor ของ TAMWEP</h2>
             <ul style={{ paddingLeft: '1.25rem', color: '#444' }}>
-              <li>ทีมงานดูแลตั้งแต่ต้นจนจบ ทั้งออกแบบและติดตั้งใช้งาน</li>
-              <li>เน้นเว็บโหลดเร็วและรองรับ SEO เบื้องต้น</li>
-              <li>บริการหลังการขาย พร้อมอัปเดตและแก้ไขตามต้องการ</li>
+              <li>ให้คำแนะนำเชิงปฏิบัติได้จริง พร้อม checklist ที่ทำตามได้</li>
+              <li>ยืดหยุ่น: สามารถอ้างอิงข้อมูลจาก URL หรือเอกสารที่คุณเตรียมให้</li>
+              <li>ตอบเป็นภาษาธรรมชาติ พร้อมตัวอย่างโค้ดสั้นๆ เพื่อเริ่มต้นทันที</li>
             </ul>
           </div>
         </section>
-
-        <section id="works" style={{ padding: '3rem 2rem', background: '#ffffff' }}>
-          <div style={{ maxWidth: 960, margin: '0 auto' }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>ผลงานตัวอย่าง</h2>
-            <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
-              {[1,2,3].map((n) => (
-                <div key={n} className="card" style={{ overflow: 'hidden' }}>
-                  <img className="works-img" src={`https://picsum.photos/seed/tamwep-${n}/800/500`} alt={`Project ${n}`} />
-                  <div style={{ padding: '0.9rem' }}>
-                    <h3 style={{ marginTop: 0 }}>Project {n}</h3>
-                    <p className="muted" style={{ margin: 0 }}>เว็บไซต์สาธิตสำหรับลูกค้า บริการออกแบบและติดตั้ง</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </section>
+        
 
         <section id="llm" style={{ padding: '3rem 2rem', background: '#f7f7f7' }}>
           <div style={{ maxWidth: 960, margin: '0 auto' }}>
@@ -209,6 +189,7 @@ export default function Home() {
             >
               <label style={{ fontWeight: 700 }}>LLM Advisor — บอกสิ่งที่ต้องการแล้วกด "แนะนำ"</label>
               <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="เช่น เว็บไซต์ one-page สำหรับร้านกาแฟ" style={{ padding: '0.8rem', borderRadius: 8, border: '1px solid #d6d6d6' }} />
+              <textarea value={sources} onChange={(e) => setSources(e.target.value)} placeholder="แหล่งข้อมูล (URL หรือข้อความสั้น) — ใส่ข้อมูลที่อยากให้ LLM อ้างอิง (ไม่บังคับ)" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #d6d6d6', minHeight: 80 }} />
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <input value={tech} onChange={(e) => setTech(e.target.value)} placeholder="Tech stack (optional)" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #d6d6d6', flex: 1 }} />
                 <button
@@ -217,21 +198,23 @@ export default function Home() {
                     setAdvisorLoading(true);
                     setChecklist([]);
                     setSnippet('');
+                    setResponseText('');
                     try {
                       const res = await fetch('/api/llm/recommend', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ goal, tech }),
+                        body: JSON.stringify({ goal, tech, sources }),
                       });
                       const data = await res.json();
                       if (data.ok) {
                         setChecklist(data.checklist || []);
                         setSnippet(data.snippet || '');
+                        setResponseText(data.text || data.snippet || '');
                       } else {
-                        setSnippet('ข้อผิดพลาด: ' + (data.error || 'unknown'));
+                        setResponseText('ข้อผิดพลาด: ' + (data.error || 'unknown'));
                       }
                     } catch (e) {
-                      setSnippet('ไม่สามารถเรียก LLM ได้');
+                      setResponseText('ไม่สามารถเรียก LLM ได้');
                     } finally {
                       setAdvisorLoading(false);
                     }
@@ -271,73 +254,17 @@ export default function Home() {
                   <div style={{ marginTop: '0.5rem' }}>{snippet}</div>
                 </div>
               )}
-            </div>
-          </div>
-        </section>
-
-        <section id="contact" style={{ padding: '3rem 2rem' }}>
-          <div style={{ maxWidth: 760, margin: '0 auto' }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>ติดต่อเรา</h2>
-            <p style={{ margin: 0, color: '#444' }}>ส่งข้อความมาหาเราได้ผ่านฟอร์มด้านล่าง</p>
-
-            <div style={{ marginTop: '1rem', background: '#fff', padding: '1rem', borderRadius: '0.75rem', boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}>
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  // client-side validation
-                  if (!contactEmail || !contactEmail.trim() || !contactMessage || !contactMessage.trim()) {
-                    setContactStatus('กรุณากรอก Email และข้อความ');
-                    return;
-                  }
-                  setContactLoading(true);
-                  setContactStatus(null);
-                  try {
-                    const res = await fetch('/api/contact', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ name: contactName, email: contactEmail, message: contactMessage }),
-                    });
-                    const data = await res.json();
-                    if (data.ok) {
-                      setContactStatus('ส่งสำเร็จ ขอบคุณครับ');
-                      setContactName('');
-                      setContactEmail('');
-                      setContactMessage('');
-                      if (data.preview) {
-                        setContactStatus((s) => (s ? s + ` (preview: ${data.preview})` : `preview: ${data.preview}`));
-                      }
-                    } else {
-                      setContactStatus('ส่งไม่สำเร็จ: ' + (data.error || 'unknown'));
-                    }
-                  } catch (err: any) {
-                    setContactStatus('เกิดข้อผิดพลาดในการส่ง');
-                  } finally {
-                    setContactLoading(false);
-                  }
-                }}
-              >
-                <div style={{ display: 'grid', gap: '0.5rem' }}>
-                  <label style={{ fontWeight: 700 }}>Email ที่ติดต่อได้</label>
-                  <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="your@email.com" type="email" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #ddd' }} />
-
-                  <label style={{ fontWeight: 700 }}>ชื่อ (ไม่บังคับ)</label>
-                  <input value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="ชื่อของคุณ" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #ddd' }} />
-
-                  <label style={{ fontWeight: 700 }}>ข้อความ</label>
-                  <textarea value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} rows={6} placeholder="รายละเอียดที่ต้องการ" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #ddd' }} />
-
-                  <button type="submit" disabled={contactLoading || !contactEmail.trim() || !contactMessage.trim()} style={{ padding: '0.75rem 1rem', borderRadius: 8, background: '#111', color: '#fff', border: 'none', fontWeight: 700 }}>
-                    {contactLoading ? 'กำลังส่ง...' : 'ส่งข้อความ'}
-                  </button>
+              {responseText && (
+                <div style={{ background: '#f3f4f6', borderRadius: '0.75rem', padding: '1rem' }}>
+                  <h4>คำอธิบาย</h4>
+                  <div style={{ whiteSpace: 'pre-wrap', color: '#111' }}>{responseText}</div>
                 </div>
-              </form>
-
-              {contactStatus && <p style={{ marginTop: '0.75rem' }}>{contactStatus}</p>}
-
-              <p style={{ marginTop: '1rem', fontWeight: 700 }}>Email: 20778@mh.ac.th</p>
+              )}
             </div>
           </div>
         </section>
+
+        
 
         <footer style={{ padding: '2rem 1rem', background: '#111', color: '#fff', marginTop: '3rem' }}>
           <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

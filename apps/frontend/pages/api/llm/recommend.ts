@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 // Public access: no server-side auth required (rate-limited per IP)
 
 type Data =
-  | { ok: true; checklist: string[]; snippet: string }
+  | { ok: true; checklist: string[]; snippet: string; text?: string }
   | { ok: false; error: string };
 
 // Basic per-IP rate limiter for this route
@@ -18,14 +18,14 @@ function getIp(req: any) {
   return req.socket?.remoteAddress || 'unknown';
 }
 
-const DEFAULT_SYSTEM = `You are an expert web developer and UX designer. Given a short user goal and optional tech stack, produce a concise JSON object with two keys: \n1) checklist: an array of short actionable steps (3-8 items) the user can follow to build a minimal one-page website to meet the goal. \n2) snippet: a minimal, copy-pasteable HTML/CSS/JS example (no external build step) that implements the core layout or feature (keep it under 200 lines). Respond only with the JSON object.`;
+const DEFAULT_SYSTEM = `You are an expert web developer and UX designer. Provide helpful, natural-language recommendations for building websites. When possible include a concise JSON object with keys:\n1) checklist: an array of short actionable steps (3-8 items) the user can follow.\n2) snippet: a minimal, copy-pasteable HTML/CSS/JS example (no external build step). If the model prefers to answer in plain text, return a natural, conversational explanation that is actionable and includes any checklist or code inline. Use any "sources" provided by the user when relevant and be explicit about using them.`;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
   if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method not allowed' });
 
   // public endpoint (no auth) — protected only by per-IP rate limiting
 
-  const { goal, tech, style } = req.body || {};
+  const { goal, tech, style, sources } = req.body || {};
   if (!goal || typeof goal !== 'string' || goal.trim().length < 3) {
     return res.status(400).json({ ok: false, error: 'Missing or invalid goal' });
   }
@@ -45,7 +45,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   // no per-user quota checks for public access
 
   // Build prompt
-  const userPrompt = `Goal: ${goal}\nTech: ${tech || 'any'}\nStyle: ${style || 'simple, clean'}\n\nReturn a JSON object as described.`;
+  const srcText = sources ? `Sources: ${String(sources)}\n\n` : '';
+  const userPrompt = `${srcText}Goal: ${goal}\nTech: ${tech || 'any'}\nStyle: ${style || 'simple, clean'}\n\nReturn a JSON object with checklist and snippet if possible — otherwise answer naturally.`;
 
   // If Ollama is configured, prefer it
   const OLLAMA_URL = process.env.OLLAMA_URL || process.env.OLLAMA_HOST || 'http://localhost:11434';
@@ -72,9 +73,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (parsed) {
           const checklist = Array.isArray(parsed.checklist) ? parsed.checklist.map(String) : [];
           const snippet = String(parsed.snippet || parsed.code || '');
-          return res.status(200).json({ ok: true, checklist, snippet });
+          return res.status(200).json({ ok: true, checklist, snippet, text: String(content) });
         }
-        return res.status(200).json({ ok: true, checklist: [], snippet: String(content) });
+        return res.status(200).json({ ok: true, checklist: [], snippet: String(content), text: String(content) });
       }
     } catch (e) {
       console.error('Ollama call failed', e);
@@ -88,11 +89,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       'Create a basic one-page HTML structure',
       'Add responsive CSS for mobile and desktop',
       'Include a hero section with headline and CTA',
-      'Add a services/work section with examples',
-      'Add a contact form that POSTs to /api/contact',
+      'Add a services/feature section',
+      'Provide an actionable checklist and minimal example code',
     ];
-    const snippet = `<!doctype html>\n<html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<style>body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0} .hero{padding:40px;text-align:center;background:#f7f7f7} .btn{display:inline-block;padding:10px 18px;background:#111;color:#fff;border-radius:8px;text-decoration:none}</style>\n</head><body><section class=\"hero\"><h1>My One Page</h1><p>Quick starter</p><a class=\"btn\" href=\"#contact\">Contact</a></section></body></html>`;
-    return res.status(200).json({ ok: true, checklist, snippet });
+    const snippet = `<!doctype html>\n<html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<style>body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0} .hero{padding:40px;text-align:center;background:#f7f7f7} .btn{display:inline-block;padding:10px 18px;background:#111;color:#fff;border-radius:8px;text-decoration:none}</style>\n</head><body><section class=\"hero\"><h1>My One Page</h1><p>Quick starter</p></section></body></html>`;
+    const text = `ตัวอย่างคำแนะนำ:\n- ${checklist.join('\n- ')}\n\nตัวอย่างโค้ด:\n${snippet}`;
+    return res.status(200).json({ ok: true, checklist, snippet, text });
   }
 
   try {
@@ -134,13 +136,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
 
     if (!parsed) {
-      // fallback: return the LLM text as snippet
-      return res.status(200).json({ ok: true, checklist: [], snippet: String(content) });
+      // fallback: return the LLM text as snippet + text
+      return res.status(200).json({ ok: true, checklist: [], snippet: String(content), text: String(content) });
     }
 
     const checklist = Array.isArray(parsed.checklist) ? parsed.checklist.map(String) : [];
     const snippet = String(parsed.snippet || parsed.code || '');
-    return res.status(200).json({ ok: true, checklist, snippet });
+    return res.status(200).json({ ok: true, checklist, snippet, text: String(content) });
   } catch (err: any) {
     console.error('LLM recommend error', err);
     return res.status(500).json({ ok: false, error: String(err?.message || err) });
