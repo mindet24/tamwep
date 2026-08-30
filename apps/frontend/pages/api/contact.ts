@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { sendEmail } from '../../lib/email';
 import fs from 'fs';
 import path from 'path';
 import { promises as fsp } from 'fs';
@@ -105,18 +104,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       console.error('Failed to persist submission:', e);
     }
 
-    const result: any = await sendEmail({ to, subject, html });
-
-    // send confirmation to sender (non-blocking)
-    if (email && typeof email === 'string') {
-      const confirmHtml = `<p>สวัสดี ${name || ''}</p><p>ขอบคุณที่ติดต่อเรา เราได้รับข้อความของคุณแล้วและจะติดต่อกลับโดยเร็ว</p>`;
-      sendEmail({ to: email, subject: 'ได้รับข้อความจาก TAMWEP', html: confirmHtml }).catch((err) => {
-        console.error('Failed to send confirmation email:', err);
-      });
-    }
-
-    // result may include preview when using test account
-    return res.status(200).json({ ok: true, preview: result.preview });
+    // Email sending disabled in this build — persist/log only and return success
+    return res.status(200).json({ ok: true });
   } catch (e: any) {
     console.error('Contact email failed:', e);
     return res.status(500).json({ ok: false, error: String(e?.message || e) });
