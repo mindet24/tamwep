@@ -6,3 +6,5 @@ dist/
 .vscode/
 .DS_Store
 npm-debug.log
+# Ignore runtime session files created by dev scripts
+apps/frontend/scripts/dev/session.json
