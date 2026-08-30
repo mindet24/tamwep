@@ -1,14 +1,19 @@
 import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_SERVER_HOST,
-  port: parseInt(process.env.EMAIL_SERVER_PORT || '587'),
-  secure: process.env.EMAIL_SERVER_SECURE === 'true', // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_SERVER_USER,
-    pass: process.env.EMAIL_SERVER_PASSWORD
-  }
-});
+let transporter: nodemailer.Transporter | undefined;
+if (process.env.EMAIL_SERVER_HOST && process.env.EMAIL_SERVER_USER) {
+  transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_SERVER_HOST,
+    port: parseInt(process.env.EMAIL_SERVER_PORT || '587'),
+    secure: process.env.EMAIL_SERVER_SECURE === 'true',
+    auth: {
+      user: process.env.EMAIL_SERVER_USER,
+      pass: process.env.EMAIL_SERVER_PASSWORD
+    }
+  });
+} else {
+  transporter = undefined;
+}
 
 export interface EmailOptions {
   to: string;
@@ -18,6 +23,9 @@ export interface EmailOptions {
 
 export async function sendEmail({ to, subject, html }: EmailOptions) {
   try {
+    if (!transporter) {
+      throw new Error('Email server is not configured. Set EMAIL_SERVER_* env vars to enable email.');
+    }
     const result = await transporter.sendMail({
       from: process.env.EMAIL_FROM || 'noreply@tamwep.com',
       to,

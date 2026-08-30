@@ -24,7 +24,7 @@ export default function Home() {
       try {
         await Promise.all(
           SAMPLE_DOCS.map((doc) =>
-            fetch('http://localhost:3001/api/rag/ingest', {
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/rag/ingest`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(doc),
@@ -48,7 +48,7 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/rag/query', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/rag/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: question }),
