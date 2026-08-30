@@ -5,7 +5,10 @@ import path from 'path';
 import { promisify } from 'util';
 const appendFile = promisify(fs.appendFile);
 
-const LOG_DIR = path.join(process.cwd(), 'apps', 'frontend', 'logs');
+// Determine a stable log directory under the frontend app
+const baseCwd = process.cwd();
+const frontendSegment = path.join('apps', 'frontend');
+const LOG_DIR = baseCwd.endsWith(frontendSegment) ? path.join(baseCwd, 'logs') : path.join(baseCwd, 'apps', 'frontend', 'logs');
 const LOG_FILE = path.join(LOG_DIR, 'contact.log');
 
 type Data =
