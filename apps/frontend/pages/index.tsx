@@ -73,7 +73,7 @@ export default function Home() {
         />
       </Head>
       <main style={{ fontFamily: 'Segoe UI, Tahoma, sans-serif', color: '#111', lineHeight: 1.7 }}>
-        <section style={{ padding: '4rem 2rem', background: '#f7f7f7' }}>
+        <section id="hero" style={{ padding: '4rem 2rem', background: '#f7f7f7' }}>
           <div style={{ maxWidth: 960, margin: '0 auto' }}>
             <p style={{ margin: 0, color: '#ff6f61', fontWeight: 700, letterSpacing: '0.12em' }}>
               รับทำเว็บไซต์
@@ -116,7 +116,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section style={{ padding: '3rem 2rem' }}>
+        <section id="services" style={{ padding: '3rem 2rem' }}>
           <div style={{ maxWidth: 960, margin: '0 auto' }}>
             <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>บริการของเรา</h2>
             <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
@@ -151,7 +151,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section style={{ padding: '3rem 2rem', background: '#f7f7f7' }}>
+        <section id="why" style={{ padding: '3rem 2rem', background: '#f7f7f7' }}>
           <div style={{ maxWidth: 960, margin: '0 auto' }}>
             <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>ทำไมต้องเลือก TAMWEP</h2>
             <ul style={{ paddingLeft: '1.25rem', color: '#444' }}>
@@ -162,7 +162,22 @@ export default function Home() {
           </div>
         </section>
 
-        <section style={{ padding: '3rem 2rem', background: '#f7f7f7' }}>
+        <section id="works" style={{ padding: '3rem 2rem', background: '#ffffff' }}>
+          <div style={{ maxWidth: 960, margin: '0 auto' }}>
+            <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>ผลงานตัวอย่าง</h2>
+            <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+              {[1,2,3].map((n) => (
+                <div key={n} style={{ background: '#fff', padding: '1rem', borderRadius: '0.75rem', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
+                  <h3 style={{ marginTop: 0 }}>Project {n}</h3>
+                  <p style={{ margin: 0 }}>เว็บไซต์สาธิตสำหรับลูกค้า บริการออกแบบและติดตั้ง</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </section>
+
+        <section id="llm" style={{ padding: '3rem 2rem', background: '#f7f7f7' }}>
           <div style={{ maxWidth: 960, margin: '0 auto' }}>
             <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>LLM แบบง่าย</h2>
             <div
@@ -222,16 +237,62 @@ export default function Home() {
           </div>
         </section>
 
-        <section style={{ padding: '3rem 2rem' }}>
-          <div style={{ maxWidth: 960, margin: '0 auto' }}>
+        <section id="contact" style={{ padding: '3rem 2rem' }}>
+          <div style={{ maxWidth: 760, margin: '0 auto' }}>
             <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>ติดต่อเรา</h2>
-            <p style={{ margin: 0, color: '#444' }}>
-              สนใจเว็บไซต์ใหม่หรือปรับปรุงเว็บไซต์เดิม ติดต่อเราได้เลย
-            </p>
-            <p style={{ marginTop: '1rem', fontWeight: 700 }}>
-              Email: contact@tamwep.com<br />
-              โทร: 090-123-4567
-            </p>
+            <p style={{ margin: 0, color: '#444' }}>ส่งข้อความมาหาเราได้ผ่านฟอร์มด้านล่าง</p>
+
+            <div style={{ marginTop: '1rem', background: '#fff', padding: '1rem', borderRadius: '0.75rem', boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}>
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setContactLoading(true);
+                  setContactStatus(null);
+                  try {
+                    const res = await fetch('/api/contact', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name: contactName, email: contactEmail, message: contactMessage }),
+                    });
+                    const data = await res.json();
+                    if (data.ok) {
+                      setContactStatus('ส่งสำเร็จ ขอบคุณครับ');
+                      setContactName('');
+                      setContactEmail('');
+                      setContactMessage('');
+                      if (data.preview) {
+                        setContactStatus((s) => (s ? s + ` (preview: ${data.preview})` : `preview: ${data.preview}`));
+                      }
+                    } else {
+                      setContactStatus('ส่งไม่สำเร็จ: ' + (data.error || 'unknown'));
+                    }
+                  } catch (err: any) {
+                    setContactStatus('เกิดข้อผิดพลาดในการส่ง');
+                  } finally {
+                    setContactLoading(false);
+                  }
+                }}
+              >
+                <div style={{ display: 'grid', gap: '0.5rem' }}>
+                  <label style={{ fontWeight: 700 }}>Email ที่ติดต่อได้</label>
+                  <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="your@email.com" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #ddd' }} />
+
+                  <label style={{ fontWeight: 700 }}>ชื่อ (ไม่บังคับ)</label>
+                  <input value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="ชื่อของคุณ" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #ddd' }} />
+
+                  <label style={{ fontWeight: 700 }}>ข้อความ</label>
+                  <textarea value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} rows={6} placeholder="รายละเอียดที่ต้องการ" style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #ddd' }} />
+
+                  <button type="submit" disabled={contactLoading} style={{ padding: '0.75rem 1rem', borderRadius: 8, background: '#111', color: '#fff', border: 'none', fontWeight: 700 }}>
+                    {contactLoading ? 'กำลังส่ง...' : 'ส่งข้อความ'}
+                  </button>
+                </div>
+              </form>
+
+              {contactStatus && <p style={{ marginTop: '0.75rem' }}>{contactStatus}</p>}
+
+              <p style={{ marginTop: '1rem', fontWeight: 700 }}>Email: 20778@mh.ac.th</p>
+            </div>
           </div>
         </section>
       </main>

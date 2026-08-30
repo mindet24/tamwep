@@ -23,17 +23,42 @@ export interface EmailOptions {
 
 export async function sendEmail({ to, subject, html }: EmailOptions) {
   try {
-    if (!transporter) {
-      throw new Error('Email server is not configured. Set EMAIL_SERVER_* env vars to enable email.');
+    // If transporter configured, use it
+    if (transporter) {
+      const result = await transporter.sendMail({
+        from: process.env.EMAIL_FROM || 'noreply@tamwep.com',
+        to,
+        subject,
+        html
+      });
+      console.log('Email sent:', result);
+      return { info: result };
     }
-    const result = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || 'noreply@tamwep.com',
-      to,
-      subject,
-      html
-    });
-    console.log('Email sent:', result);
-    return result;
+
+    // Fallback for non-production: use nodemailer's test account
+    if (process.env.NODE_ENV !== 'production') {
+      const testAccount = await nodemailer.createTestAccount();
+      const testTransport = nodemailer.createTransport({
+        host: testAccount.smtp.host,
+        port: testAccount.smtp.port,
+        secure: testAccount.smtp.secure,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass
+        }
+      });
+      const info = await testTransport.sendMail({
+        from: process.env.EMAIL_FROM || 'noreply@tamwep.com',
+        to,
+        subject,
+        html
+      });
+      const preview = nodemailer.getTestMessageUrl(info) || null;
+      console.log('Sent test email. Preview URL:', preview);
+      return { info, preview };
+    }
+
+    throw new Error('Email server is not configured. Set EMAIL_SERVER_* env vars to enable email in production.');
   } catch (error) {
     console.error('Error sending email:', error);
     throw error;
