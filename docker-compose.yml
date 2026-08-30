@@ -1,5 +1,29 @@
 version: '3.8'
 services:
+  frontend:
+    build:
+      context: ./apps/frontend
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Set Ollama URL if you run Ollama on another host/container
+      - USE_OLLAMA=1
+      - OLLAMA_URL=http://ollama:11434
+    restart: unless-stopped
+
+# Optional: run Ollama on the same compose stack if you have an image and data directory
+# Example (uncomment and adjust if you have an Ollama image):
+# ollama:
+#   image: ollama/ollama:latest
+#   ports:
+#     - "11434:11434"
+#   volumes:
+#     - ./ollama-data:/var/lib/ollama
+#   command: ["serve"]
+version: '3.8'
+services:
   db:
     image: postgres:15
     restart: always
