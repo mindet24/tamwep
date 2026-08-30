@@ -1,4 +1,10 @@
 {
+  "rootDirectory": "apps/frontend",
+  "build": {
+    "env": {}
+  }
+}
+{
   "builds": [
     {
       "src": "apps/frontend/package.json",
